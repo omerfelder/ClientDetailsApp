@@ -9,6 +9,8 @@ namespace ClientDetailsApp
         private Button buttonUpload;
         private Button buttonTest;
         private Button buttonShatarMecher;
+        private Button buttonHeara;
+        private Panel separatorParties;
         private Button buttonCopyParties;
         private Button buttonCopyProperty;
         private Button buttonCopyLawyers;
@@ -33,41 +35,46 @@ namespace ClientDetailsApp
         private void BuildUi()
         {
             this.Text = "העתקת פרטי עסקה";
-            this.ClientSize = new Size(815, 512);
+            this.ClientSize = new Size(815, 517);
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.RightToLeft = RightToLeft.Yes;
             this.RightToLeftLayout = true;
 
 
-            buttonUpload = new Button { Text = "העלה הסכם מכר", Left = 10, Top = 15, Width = 160, Height = 30 };
+            buttonUpload = new Button { Text = "העלה הסכם מכר", Left = 10, Top = 15, Width = 135, Height = 30 };
             buttonUpload.Click += async (s, e) => await ButtonUpload_Click();
 
-            buttonTest = new Button { Text = "טען נתוני בדיקה", Left = 180, Top = 15, Width = 160, Height = 30 };
+            buttonTest = new Button { Text = "טען נתוני בדיקה", Left = 670, Top = 15, Width = 135, Height = 30 };
             buttonTest.Click += (s, e) => LoadTestData();
 
-            buttonShatarMecher = new Button { Text = "צור שטר מכר", Left = 350, Top = 15, Width = 160, Height = 30 };
+            buttonShatarMecher = new Button { Text = "צור שטר מכר", Left = 155, Top = 15, Width = 135, Height = 30 };
             buttonShatarMecher.Click += (s, e) => OpenShatarMecherDoc();
 
-            labelParties = new Label { Text = "קונים ומוכרים:", Left = -10, Top = 60, Height = 20, TextAlign = ContentAlignment.TopRight, RightToLeft = RightToLeft.Yes };
-            buttonCopyParties = MakeCopyButton(top: 50);
+            buttonHeara = new Button { Text = "צור הערת אזהרה", Left = 300, Top = 15, Width = 135, Height = 30 };
+            buttonHeara.Click += (s, e) => WordService.OpenHeara();
+
+            separatorParties = new Panel { Left = 10, Top = 57, Width = 795, Height = 2, BackColor = Color.Gray };
+
+            labelParties = new Label { Text = "קונים ומוכרים:", Left = -10, Top = 80, Height = 20, TextAlign = ContentAlignment.TopRight, RightToLeft = RightToLeft.Yes };
+            buttonCopyParties = MakeCopyButton(top: 70);
             buttonCopyParties.Click += (s, e) => CopyGridToCsv(dataGridParties);
-            dataGridParties = MakeGrid(top: 80, height: 150);
+            dataGridParties = MakeGrid(top: 100, height: 150);
 
-            labelProperty = new Label { Text = "נכס:", Left = -58, Top = 255, Height = 20, TextAlign = ContentAlignment.TopRight, RightToLeft = RightToLeft.Yes };
-            buttonCopyProperty = MakeCopyButton(top: 245);
+            labelProperty = new Label { Text = "נכס:", Left = -58, Top = 270, Height = 20, TextAlign = ContentAlignment.TopRight, RightToLeft = RightToLeft.Yes };
+            buttonCopyProperty = MakeCopyButton(top: 260);
             buttonCopyProperty.Click += (s, e) => CopyGridToCsv(dataGridProperty);
-            dataGridProperty = MakeGrid(top: 275, height: 72);
+            dataGridProperty = MakeGrid(top: 290, height: 72);
 
-            labelLawyers = new Label { Text = "עורכי דין:", Left = -38, Top = 372, Height = 20, TextAlign = ContentAlignment.TopRight, RightToLeft = RightToLeft.Yes };
-            buttonCopyLawyers = MakeCopyButton(top: 362);
+            labelLawyers = new Label { Text = "עורכי דין:", Left = -38, Top = 382, Height = 20, TextAlign = ContentAlignment.TopRight, RightToLeft = RightToLeft.Yes };
+            buttonCopyLawyers = MakeCopyButton(top: 372);
             buttonCopyLawyers.Click += (s, e) => CopyGridToCsv(dataGridLawyers);
-            dataGridLawyers = MakeGrid(top: 392, height: 100);
+            dataGridLawyers = MakeGrid(top: 402, height: 100);
 
             this.Controls.AddRange(new Control[]
             {
-                buttonUpload, buttonTest, buttonShatarMecher,
-                dataGridParties, labelParties, buttonCopyParties,
+                buttonUpload, buttonTest, buttonShatarMecher, buttonHeara,
+                separatorParties, dataGridParties, labelParties, buttonCopyParties,
                 dataGridProperty, labelProperty, buttonCopyProperty,
                 dataGridLawyers, labelLawyers, buttonCopyLawyers
             });

@@ -68,6 +68,20 @@ namespace ClientDetailsApp
             return sb.ToString().Trim();
         }
 
+        public static void OpenHeara()
+        {
+            string configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+            string configJson = File.ReadAllText(configPath);
+            using var config = JsonDocument.Parse(configJson);
+            string templatePath = config.RootElement.GetProperty("HearaTemplatePath").GetString()!;
+
+            string tempPath = Path.Combine(Path.GetTempPath(), $"הערת_אזהרה_{DateTime.Now:yyyyMMdd_HHmmss}.dotx");
+            File.Copy(templatePath, tempPath, overwrite: true);
+
+            System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo(tempPath) { UseShellExecute = true });
+        }
+
         public void OpenShatarMecher(ClientDetails clientDetails)
         {
             string configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
