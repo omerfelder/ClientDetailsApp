@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet add:*)",
+      "Bash(dotnet publish:*)",
+      "Bash(dotnet build:*)",
+      "Bash(mv \"c:\\\\Dev\\\\ClientDet\\\\ClientDetailsApp\\\\ChatGptUploaderApp.csproj\" \"c:\\\\Dev\\\\ClientDet\\\\ClientDetailsApp\\\\ClientDetailsApp.csproj\")",
+      "Bash(mv \"c:\\\\Dev\\\\ClientDet\\\\ClientDetailsApp\\\\ChatGptUploaderApp.csproj.user\" \"c:\\\\Dev\\\\ClientDet\\\\ClientDetailsApp\\\\ClientDetailsApp.csproj.user\")"
+    ]
+  }
+}

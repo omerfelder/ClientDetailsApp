@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug ClientDetailsApp",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/ClientDetailsApp/bin/Debug/net9.0-windows/ClientDetailsApp.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/ClientDetailsApp",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        }
+    ]
+}
