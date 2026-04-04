@@ -15,6 +15,7 @@ namespace ClientDetailsApp
         public string Id { get; set; } = "";
 
         public string FullName => $"{FirstName} {LastName}".Trim();
+        public string Share { get; set; } = "";
     }
 
     internal class Property
@@ -57,8 +58,16 @@ namespace ClientDetailsApp
 
         public static ClientDetails Parse(string json)
         {
-            return JsonSerializer.Deserialize<ClientDetails>(json)
+            var result = JsonSerializer.Deserialize<ClientDetails>(json)
                 ?? throw new InvalidOperationException("Failed to parse client details from JSON.");
+
+            string buyerShare  = $"1/{result.Buyers.Count}";
+            string sellerShare = $"1/{result.Sellers.Count}";
+
+            foreach (var buyer  in result.Buyers)  buyer.Share  = buyerShare;
+            foreach (var seller in result.Sellers) seller.Share = sellerShare;
+
+            return result;
         }
     }
 }

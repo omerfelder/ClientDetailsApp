@@ -68,7 +68,7 @@ namespace ClientDetailsApp
             return sb.ToString().Trim();
         }
 
-        public static void OpenHeara()
+        public void OpenHeara(ClientDetails clientDetails)
         {
             string configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
             string configJson = File.ReadAllText(configPath);
@@ -77,6 +77,15 @@ namespace ClientDetailsApp
 
             string tempPath = Path.Combine(Path.GetTempPath(), $"הערת_אזהרה_{DateTime.Now:yyyyMMdd_HHmmss}.dotx");
             File.Copy(templatePath, tempPath, overwrite: true);
+
+            using (var wordDoc = WordprocessingDocument.Open(tempPath, true))
+            {
+                var body = wordDoc.MainDocumentPart!.Document!.Body!;
+                var fieldMap = config.RootElement.GetProperty("FieldMap");
+                foreach (var entry in fieldMap.EnumerateObject())
+                    ReplaceText(body, entry.Name, ResolveField(clientDetails, entry.Value.GetString()!));
+                wordDoc.MainDocumentPart.Document.Save();
+            }
 
             System.Diagnostics.Process.Start(
                 new System.Diagnostics.ProcessStartInfo(tempPath) { UseShellExecute = true });
@@ -97,7 +106,7 @@ namespace ClientDetailsApp
                 var body = wordDoc.MainDocumentPart!.Document!.Body!;
                 PopulateSellersTable(body, clientDetails.Sellers);
                 PopulateBuyersTable(body, clientDetails.Buyers);
-                PopulatePropertyTable(body, clientDetails.Property);
+                PopulatePropertyTable(body, clientDetails.Property,"מס' הגוש");
                 PopulateSignatureTable(body, clientDetails.Sellers, clientDetails.Buyers);
                 wordDoc.MainDocumentPart.Document.Save();
             }
@@ -172,10 +181,10 @@ namespace ClientDetailsApp
             }
         }
 
-        private static void PopulatePropertyTable(WBody body, Property property)
+        private static void PopulatePropertyTable(WBody body, Property property, string tableIdentifier)
         {
             var table = body.ChildElements
-                .SkipWhile(el => !el.InnerText.Contains("מס' הגוש"))
+                .SkipWhile(el => !el.InnerText.Contains(tableIdentifier))
                 .OfType<WTable>()
                 .FirstOrDefault();
             if (table == null) return;
@@ -223,6 +232,44 @@ namespace ClientDetailsApp
 
         // Fills the value run of a legacy form field (between "separate" and "end" FieldChar markers).
         // Falls back to replacing the first text run if no form field is found.
+        private static string ResolveField(ClientDetails clientDetails, string fieldPath)
+        {
+            var parts = fieldPath.Split('.');
+            if (parts.Length == 3 && int.TryParse(parts[1], out int index))
+            {
+                index--; // convert 1-based to 0-based
+                var list = parts[0] == "Buyer" ? clientDetails.Buyers : clientDetails.Sellers;
+                if (index < 0 || index >= list.Count) return "";
+                var person = list[index];
+                return parts[2] switch
+                {
+                    "FirstName" => person.FirstName,
+                    "LastName"  => person.LastName,
+                    "Id"        => person.Id,
+                    "Share"     => person.Share,
+                    _           => ""
+                };
+            }
+
+            return fieldPath switch
+            {
+                "Property.Block"     => clientDetails.Property.Block,
+                "Property.Parcel"    => clientDetails.Property.Parcel,
+                "Property.SubParcel" => clientDetails.Property.SubParcel,
+                "Property.Address"   => clientDetails.Property.Address,
+                _                    => ""
+            };
+        }
+
+        private static void ReplaceText(WBody body, string search, string replacement)
+        {
+            var regex = new System.Text.RegularExpressions.Regex($@"\b{System.Text.RegularExpressions.Regex.Escape(search)}\b");
+            foreach (var text in body.Descendants<WText>().Where(t => regex.IsMatch(t.Text)))
+                text.Text = string.IsNullOrEmpty(replacement)
+                    ? text.Text.Replace(search, "")
+                    : regex.Replace(text.Text, replacement);
+        }
+
         private static void FillCellFormField(WTableCell cell, string value)
         {
             var runs = cell.Descendants<WRun>().ToList();

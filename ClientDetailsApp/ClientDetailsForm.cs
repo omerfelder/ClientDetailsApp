@@ -52,7 +52,7 @@ namespace ClientDetailsApp
             buttonShatarMecher.Click += (s, e) => OpenShatarMecherDoc();
 
             buttonHeara = new Button { Text = "צור הערת אזהרה", Left = 300, Top = 15, Width = 135, Height = 30 };
-            buttonHeara.Click += (s, e) => WordService.OpenHeara();
+            buttonHeara.Click += (s, e) => OpenHearaDoc();
 
             separatorParties = new Panel { Left = 10, Top = 57, Width = 795, Height = 2, BackColor = Color.Gray };
 
@@ -143,7 +143,7 @@ namespace ClientDetailsApp
             {
                 string pageText = _wordService.ReadFirstPage(path);
                 var openAi = new OpenAiService(apiKey);
-                string response = await openAi.AnalyzeContractAsync(pageText[..Math.Min(2000, pageText.Length)]);
+                string response = await openAi.AnalyzeContractAsync(pageText[..Math.Min(4000, pageText.Length)]);
                 
                 _clientDetails = ClientDetails.Parse(response);
                 PopulateGrids(response);
@@ -168,6 +168,17 @@ namespace ClientDetailsApp
             }
 
             _wordService.OpenShatarMecher(_clientDetails);
+        }
+
+        private void OpenHearaDoc()
+        {
+            if (_clientDetails == null)
+            {
+                MessageBox.Show("העתק את הנתונים לפני יצירת המסמך", "שגיאה", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            _wordService.OpenHeara(_clientDetails);
         }
 
         private void LoadTestData()
