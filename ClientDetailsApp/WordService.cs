@@ -247,6 +247,7 @@ namespace ClientDetailsApp
                     "LastName"  => person.LastName,
                     "Id"        => person.Id,
                     "Share"     => person.Share,
+                    "Address"   => person.Address,
                     _           => ""
                 };
             }
@@ -256,7 +257,7 @@ namespace ClientDetailsApp
                 "Property.Block"     => clientDetails.Property.Block,
                 "Property.Parcel"    => clientDetails.Property.Parcel,
                 "Property.SubParcel" => clientDetails.Property.SubParcel,
-                "Property.Address"   => clientDetails.Property.Address,
+                "Property.Address"   => clientDetails.Property.PropAddress,
                 _                    => ""
             };
         }
@@ -264,10 +265,26 @@ namespace ClientDetailsApp
         private static void ReplaceText(WBody body, string search, string replacement)
         {
             var regex = new System.Text.RegularExpressions.Regex($@"\b{System.Text.RegularExpressions.Regex.Escape(search)}\b");
-            foreach (var text in body.Descendants<WText>().Where(t => regex.IsMatch(t.Text)))
-                text.Text = string.IsNullOrEmpty(replacement)
-                    ? text.Text.Replace(search, "")
-                    : regex.Replace(text.Text, replacement);
+
+            foreach (var paragraph in body.Descendants<WParagraph>())
+            {
+                var runs = paragraph.Elements<WRun>()
+                    .Where(r => r.GetFirstChild<WText>() != null)
+                    .ToList();
+
+                if (runs.Count == 0) continue;
+
+                string fullText = string.Concat(runs.Select(r => r.GetFirstChild<WText>()!.Text));
+                if (!regex.IsMatch(fullText)) continue;
+
+                // Write replaced text into the first run, clear the rest
+                var firstText = runs[0].GetFirstChild<WText>()!;
+                firstText.Text = regex.Replace(fullText, replacement);
+                firstText.Space = SpaceProcessingModeValues.Preserve;
+
+                foreach (var run in runs.Skip(1))
+                    run.GetFirstChild<WText>()!.Text = "";
+            }
         }
 
         private static void FillCellFormField(WTableCell cell, string value)
@@ -292,7 +309,7 @@ namespace ClientDetailsApp
                     if (text != null)
                     {
                         text.Text = value;
-                        text.Space = DocumentFormat.OpenXml.SpaceProcessingModeValues.Preserve;
+                        text.Space = SpaceProcessingModeValues.Preserve;
                         return;
                     }
                 }
@@ -344,7 +361,7 @@ namespace ClientDetailsApp
         private static void AppendPropertySection(WBody body, Property property)
         {
             string[] headers = ["כתובת", "גוש", "חלקה", "תת חלקה"];
-            var rows = new List<string[]> { new[] { property.Address, property.Block, property.Parcel, property.SubParcel } };
+            var rows = new List<string[]> { new[] { property.PropAddress, property.Block, property.Parcel, property.SubParcel } };
             AppendTable(body, "נכס", headers, rows);
         }
 

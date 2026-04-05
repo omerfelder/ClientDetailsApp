@@ -14,6 +14,9 @@ namespace ClientDetailsApp
         [JsonPropertyName("תעודת זהות")]
         public string Id { get; set; } = "";
 
+        [JsonPropertyName("כתובת")]
+        public string Address { get; set; } = "";
+
         public string FullName => $"{FirstName} {LastName}".Trim();
         public string Share { get; set; } = "";
     }
@@ -21,7 +24,7 @@ namespace ClientDetailsApp
     internal class Property
     {
         [JsonPropertyName("כתובת")]
-        public string Address { get; set; } = "";
+        public string PropAddress { get; set; } = "";
 
         [JsonPropertyName("גוש")]
         public string Block { get; set; } = "";

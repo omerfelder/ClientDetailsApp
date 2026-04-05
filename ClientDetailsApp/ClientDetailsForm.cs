@@ -35,7 +35,7 @@ namespace ClientDetailsApp
         private void BuildUi()
         {
             this.Text = "העתקת פרטי עסקה";
-            this.ClientSize = new Size(815, 517);
+            this.ClientSize = new Size(915, 517);
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.RightToLeft = RightToLeft.Yes;
@@ -45,7 +45,7 @@ namespace ClientDetailsApp
             buttonUpload = new Button { Text = "העלה הסכם מכר", Left = 10, Top = 15, Width = 135, Height = 30 };
             buttonUpload.Click += async (s, e) => await ButtonUpload_Click();
 
-            buttonTest = new Button { Text = "טען נתוני בדיקה", Left = 670, Top = 15, Width = 135, Height = 30 };
+            buttonTest = new Button { Text = "טען נתוני בדיקה", Left = 770, Top = 15, Width = 135, Height = 30 };
             buttonTest.Click += (s, e) => LoadTestData();
 
             buttonShatarMecher = new Button { Text = "צור שטר מכר", Left = 155, Top = 15, Width = 135, Height = 30 };
@@ -54,7 +54,7 @@ namespace ClientDetailsApp
             buttonHeara = new Button { Text = "צור הערת אזהרה", Left = 300, Top = 15, Width = 135, Height = 30 };
             buttonHeara.Click += (s, e) => OpenHearaDoc();
 
-            separatorParties = new Panel { Left = 10, Top = 57, Width = 795, Height = 2, BackColor = Color.Gray };
+            separatorParties = new Panel { Left = 10, Top = 57, Width = 895, Height = 2, BackColor = Color.Gray };
 
             labelParties = new Label { Text = "קונים ומוכרים:", Left = -10, Top = 80, Height = 20, TextAlign = ContentAlignment.TopRight, RightToLeft = RightToLeft.Yes };
             buttonCopyParties = MakeCopyButton(top: 70);
@@ -83,30 +83,36 @@ namespace ClientDetailsApp
         // Left=735 places the button at the visual left edge of the grid (815 - 10 - 70 = 735) in RTL layout
         private static Button MakeCopyButton(int top) => new Button
         {
-            Text = "העתק", Left = 735, Top = top, Width = 70, Height = 25
+            Text = "העתק", Left = 835, Top = top, Width = 70, Height = 25
         };
 
-        private static DataGridView MakeGrid(int top, int height) => new DataGridView
+        private static DataGridView MakeGrid(int top, int height)
         {
-            Left = 10, Top = top, Width = 795, Height = height,
-            ReadOnly = true,
-            AllowUserToAddRows = false,
-            AllowUserToDeleteRows = false,
-            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-            ColumnHeadersVisible = true,
-            RowHeadersVisible = false,
-            ScrollBars = ScrollBars.Both,
-            RightToLeft = RightToLeft.Yes
-        };
+            var grid = new DataGridView
+            {
+                Left = 10, Top = top, Width = 895, Height = height,
+                ReadOnly = false,
+                EditMode = DataGridViewEditMode.EditOnF2,
+                AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                ColumnHeadersVisible = true,
+                RowHeadersVisible = false,
+                ScrollBars = ScrollBars.Both,
+                RightToLeft = RightToLeft.Yes
+            };
+            grid.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) grid.BeginEdit(true); };
+            return grid;
+        }
 
         private static void CopyGridToCsv(DataGridView grid)
         {
             if (grid.Columns.Count == 0) return;
             var sb = new StringBuilder();
-            foreach (DataGridViewColumn col in grid.Columns)
-                sb.Append(col.HeaderText).Append(',');
-            sb.Length--;
-            sb.AppendLine();
+            // foreach (DataGridViewColumn col in grid.Columns)
+            //     sb.Append(col.HeaderText).Append(',');
+            // sb.Length--;
+            // sb.AppendLine();
             foreach (DataGridViewRow row in grid.Rows)
             {
                 foreach (DataGridViewCell cell in row.Cells)
